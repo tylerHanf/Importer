@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Vec3.h"
+#include "Vec2.h"
 
 #define MAX_LINE_SIZE 256
 #define MAX_ARRAY_SIZE 10000

@@ -2,8 +2,6 @@
 #include <iostream>
 #include <stdlib.h>
 
-#define MATERIAL_FP_OFFSET 18
-
 OBJ_Importer::OBJ_Importer(void) {
 	BasePath = "./";
 }
