@@ -38,32 +38,20 @@ struct Model {
 };
 
 class OBJ_Importer {
-public:	
+public:
 	OBJ_Importer(void);
-	OBJ_Importer(std::string basePath);
+	OBJ_Importer(std::string BasePath);
+	//Reads in various data from .obj file
+	void ReadFile(const char* filename);
+	//Gets the filepath of the texture associated with the object
 
-	bool loadOBJ(std::string objPath);
-	
 private:
-	std::vector<Model> models;
 	std::vector<Vec3> Vertices;
+	std::vector<Vec2> Texels;
 	std::vector<Vec3> Normals;
-	std::vector<Vec2> TextCoords;
-	std::vector<Vec3> Faces;
-	std::vector<Material> Materials;
 	std::vector<Model> Models;
-
+	std::vector<Material> Materials;
 	std::string BasePath;
 
-	bool loadMaterial(std::string filepath);
-	bool getVertices(std::fstream& fs, ModelComponent* curComp);
-	bool getTextCoords(std::fstream& fs, ModelComponent* curComp);
-	bool getNormals(std::fstream& fs, ModelComponent* curComp);
-	bool getMaterial(std::fstream& fs, ModelComponent* curComp);
-	bool getFaces(std::fstream& fs, ModelComponent* curComp);
-	void parseVec3(char* line, float& x, float& y, float& z);
-	void parseVec2(char* line, float& x, float& y);
-	void parseFloat(char* line, float& val);
-
-	static int  charToInt(char char_num);
+	bool LoadMaterial(std::string filepath);
 };
