@@ -46,12 +46,13 @@ public:
 	//Gets the filepath of the texture associated with the object
 
 private:
-	std::vector<Vec3> Vertices;
-	std::vector<Vec2> Texels;
-	std::vector<Vec3> Normals;
+	std::vector<float> Vertices;
+	std::vector<float> Texels;
+	std::vector<float> Normals;
 	std::vector<Model> Models;
 	std::vector<Material> Materials;
 	std::string BasePath;
 
 	bool LoadMaterial(std::string filepath);
+	bool LoadPNG(std::string filename);
 };
