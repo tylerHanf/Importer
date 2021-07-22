@@ -4,12 +4,24 @@
 #include <sstream>
 #include "Logger.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+using namespace Importer;
+
 OBJ_Importer::OBJ_Importer(void) {
 	BasePath = "./";
+	TextureBasePath = "./";
 }
 
 OBJ_Importer::OBJ_Importer(std::string basepath) {
 	BasePath = basepath;
+	TextureBasePath = "./";
+}
+
+OBJ_Importer::OBJ_Importer(std::string basepath, std::string textureBasePath) {
+	BasePath = basepath;
+	TextureBasePath = textureBasePath;
 }
 
 /*
@@ -96,8 +108,6 @@ void OBJ_Importer::ReadFile(const char* filename) {
 				Normals.push_back(normals[nIndex][0]);
 				Normals.push_back(normals[nIndex][1]);
 				Normals.push_back(normals[nIndex][2]);
-
-				//Push Faces
 			}
 			input.clear();
 		}
@@ -117,6 +127,9 @@ bool OBJ_Importer::LoadMaterial(std::string filepath) {
 	std::ifstream fs;
 	std::string str = "dummy string";
 	fs.open(BasePath + filepath);
+	if (!fs.is_open()) {
+		Logger::LogPrint("Failed to open material file: %s", filepath);
+	}
 
 	float x, y, z;
 	int illum;
@@ -128,54 +141,63 @@ bool OBJ_Importer::LoadMaterial(std::string filepath) {
 		if (line[0] == 'n') {
 			line.erase(0, 7);
 			material.name = line;
+			Logger::LogPrint("Name: %s", line.c_str());
 		}
 		// Ns 
 		else if (line[0] == 'N' && line[1] == 's') {
 			line.erase(0, 3);
 			sscanf_s(line.c_str(), "%f", &x);
 			material.Ns = x;
+			Logger::LogPrint("Ns: %s", line.c_str());
 		}
 		// Ka
 		else if (line[0] == 'K' && line[1] == 'a') {
 			line.erase(0, 3);
 			sscanf_s(line.c_str(), "%f %f %f", &x, &y, &z);
 			material.Ka = Vec3(x, y, z);
+			Logger::LogPrint("Ka: %s", line.c_str());
 		}
 		// Kd
 		else if (line[0] == 'K' && line[1] == 'd') {
 			line.erase(0, 3);
 			sscanf_s(line.c_str(), "%f %f %f", &x, &y, &z);
 			material.Kd = Vec3(x, y, z);
+			Logger::LogPrint("Kd: %s", line.c_str());
 		}
 		// Ks
 		else if (line[0] == 'K' && line[1] == 's') {
 			line.erase(0, 3);
 			sscanf_s(line.c_str(), "%f %f %f", &x, &y, &z);
 			material.Ks = Vec3(x, y, z);
+			Logger::LogPrint("Ks: %s", line.c_str());
 		}
 		// Ke
 		else if (line[0] == 'K' && line[1] == 'e') {
 			line.erase(0, 3);
 			sscanf_s(line.c_str(), "%f %f %f", &x, &y, &z);
 			material.Ke = Vec3(x, y, z);
+			Logger::LogPrint("Ke: %s", line.c_str());
 		}
 		// Ni
 		else if (line[0] == 'N' && line[1] == 'i') {
 			line.erase(0, 3);
 			sscanf_s(line.c_str(), "%f", &x);
 			material.Ni = x;
+			Logger::LogPrint("Ni: %s", line.c_str());
 		}
 		// d
 		else if (line[0] == 'd') {
 			line.erase(0, 2);
 			sscanf_s(line.c_str(), "%f", &x);
 			material.d = x;
+			Logger::LogPrint("d: %s", line.c_str());
 		}
 		// illum
 		else if (line[0] == 'i') {
-			line.erase(0, 2);
+			line.erase(0, 6);
 			sscanf_s(line.c_str(), "%d", &illum);
 			material.illum = illum;
+			Logger::LogPrint("i: %s", line.c_str());
 		}
 		/*
 		// map_d
@@ -196,9 +218,10 @@ bool OBJ_Importer::LoadMaterial(std::string filepath) {
 		*/
 		// map_Kd
 		else if (line[0] == 'm' && line[5] == 'd') {
-			line.erase(0, 6);
-			sscanf_s(line.c_str(), "%s", name);
-			LoadPNG(name);
+			Logger::LogPrint("material: %s", line.c_str());
+			line.erase(0, 7);
+			//sscanf_s(line.c_str(), "%s", name, 256);
+			LoadPNG(line, material.Kd_map);
 		}
 		/*
 		// map_Ks
@@ -218,9 +241,18 @@ bool OBJ_Importer::LoadMaterial(std::string filepath) {
 		}
 		*/
 	}
+
+	Materials.push_back(material);
 	return true;
 }
 
-bool OBJ_Importer::LoadPNG(std:string filename) {
+bool OBJ_Importer::LoadPNG(std::string filename, Texture& texture) {
+	Logger::LogPrint("%s", filename.c_str());
+	texture.data = stbi_load((TextureBasePath + filename).c_str(), 
+		                      &texture.width, &texture.height, &texture.channels, 0);
+	if (texture.data == NULL) {
+		Logger::LogPrint("Failed to load .png");
+	}
+
 	return true;
 }

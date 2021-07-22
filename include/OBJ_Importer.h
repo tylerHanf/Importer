@@ -11,48 +11,61 @@
 #define MAX_COMPONENTS 20
 #define OBJ_FLOAT_LEN 8
 
-struct Material {
-	std::string name;
-	float Ns;
-	Vec3  Ka;
-	Vec3  Kd;
-	Vec3  Ks;
-	Vec3  Ke;
-	float Ni;
-	float d;
-	float illum;
-};
+namespace Importer {
 
-struct ModelComponent {
-	int vertIndex;
-	int textCoordIndex;
-	int normIndex;
-	int indicesIndex;
-	int facesIndex;
-	int materialIndex;
-};
+	struct Texture {
+		int width;
+		int height;
+		int channels;
+		unsigned char* data;
+	};
 
-struct Model {
-	int numComponents;
-	std::vector<ModelComponent> components;
-};
+	struct Material {
+		std::string name;
+		float Ns;
+		Vec3  Ka;
+		Vec3  Kd;
+		Vec3  Ks;
+		Vec3  Ke;
+		float Ni;
+		float d;
+		float illum;
+		Texture Kd_map;
+	};
 
-class OBJ_Importer {
-public:
-	OBJ_Importer(void);
-	OBJ_Importer(std::string BasePath);
-	//Reads in various data from .obj file
-	void ReadFile(const char* filename);
-	//Gets the filepath of the texture associated with the object
+	struct ModelComponent {
+		int vertIndex;
+		int textCoordIndex;
+		int normIndex;
+		int indicesIndex;
+		int facesIndex;
+		int materialIndex;
+	};
 
-private:
-	std::vector<float> Vertices;
-	std::vector<float> Texels;
-	std::vector<float> Normals;
-	std::vector<Model> Models;
-	std::vector<Material> Materials;
-	std::string BasePath;
+	struct Model {
+		int numComponents;
+		std::vector<ModelComponent> components;
+	};
 
-	bool LoadMaterial(std::string filepath);
-	bool LoadPNG(std::string filename);
-};
+	class OBJ_Importer {
+	public:
+		OBJ_Importer(void);
+		OBJ_Importer(std::string BasePath);
+		OBJ_Importer(std::string BasePath, std::string TextureBasePath);
+		//Reads in various data from .obj file
+		void ReadFile(const char* filename);
+		//Gets the filepath of the texture associated with the object
+
+	private:
+		std::vector<float> Vertices;
+		std::vector<float> Texels;
+		std::vector<float> Normals;
+		std::vector<Model> Models;
+		std::vector<Material> Materials;
+		std::string BasePath;
+		std::string TextureBasePath;
+
+		bool LoadMaterial(std::string filepath);
+		bool LoadPNG(std::string filename, Texture& texture);
+	};
+}
