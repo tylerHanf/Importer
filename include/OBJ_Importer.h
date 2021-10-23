@@ -13,11 +13,26 @@
 
 namespace Importer {
 
+	enum BufferType { VERT=0, 
+		              TEXTURE=1, 
+		              NORMAL=2, 
+		              VERT_TEXTURE=3, 
+		              VERT_NORMAL=4, 
+		              VERT_TEXTURE_NORMAL=5,
+					  NUM_TYPES=6,
+					  NONE=16,
+					};
+
+	enum DataLayout { INDIVIDUAL,
+					  CONSECUTIVE,
+					  INTERLEAVED,
+					};
+
 	struct Texture {
 		int width;
 		int height;
 		int channels;
-		unsigned char* data;
+		std::vector<unsigned char> data;
 	};
 
 	struct Material {
@@ -34,12 +49,19 @@ namespace Importer {
 	};
 
 	struct ModelComponent {
+		BufferType type;
+		bool hasMaterial;
+
 		int vertIndex;
+		int numVerts;
 		int textCoordIndex;
+		int numTextCoords;
 		int normIndex;
-		int indicesIndex;
-		int facesIndex;
+		int numNorms;
+		int totalNumPoints;
 		int materialIndex;
+		int interleaveDataIndex;
+		int consecutiveDataIndex;
 	};
 
 	struct Model {
@@ -47,6 +69,12 @@ namespace Importer {
 		std::vector<ModelComponent> components;
 	};
 
+	struct Data {
+		DataLayout layout;
+		std::vector<float> buffers[NUM_TYPES];
+	};
+
+	// TODO: Make a master file for importing multiple .objs
 	class OBJ_Importer {
 	public:
 		OBJ_Importer(void);
@@ -54,18 +82,26 @@ namespace Importer {
 		OBJ_Importer(std::string BasePath, std::string TextureBasePath);
 		//Reads in various data from .obj file
 		void ReadFile(const char* filename);
-		//Gets the filepath of the texture associated with the object
+		// Clears all buffer data and resets importer state except for base paths
+		void CleanBuffers(void);
+		void SetBasePath(std::string basePath);
+		void SetTextureBasePath(std::string textureBasePath);
 
-	private:
+		Data InterleaveData(void);
+
 		std::vector<float> Vertices;
 		std::vector<float> Texels;
 		std::vector<float> Normals;
-		std::vector<Model> Models;
+		std::vector<int>   Indices;
 		std::vector<Material> Materials;
+		std::vector<Model> Models;
+
 		std::string BasePath;
 		std::string TextureBasePath;
 
-		bool LoadMaterial(std::string filepath);
+	private:
+		void SetComponent(ModelComponent* comp, bool hasVerts, bool hasTextCoords, bool hasNorms);
+		bool LoadMaterials(std::string filepath);
 		bool LoadPNG(std::string filename, Texture& texture);
 	};
 }
