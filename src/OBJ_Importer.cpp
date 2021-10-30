@@ -367,3 +367,7 @@ Data OBJ_Importer::InterleaveData(void) {
 	}
 	return data;
 }
+
+int OBJ_Importer::NumModels() const {
+  return Models.size();
+}
